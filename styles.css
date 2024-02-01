@@ -1,0 +1,12 @@
+#main {
+  text-align: center;
+}
+
+svg {
+  background-color: whitesmoke;
+}
+
+#canvas {
+  min-width: 1000px;
+  min-height: 600px;
+}

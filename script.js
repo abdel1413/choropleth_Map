@@ -4,7 +4,7 @@ const educationDataUrl =
 const countyDataUrl =
   "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json";
 
-let educationData, countyData, percentage;
+let educationData, countyData, percentage, tooltip;
 
 const legendJson = [
   { x_axis: "600", y_axis: "30", color: "tomato" },
@@ -15,8 +15,43 @@ const legendJson = [
   { x_axis: "800", y_axis: "30", color: "black" },
 ];
 
+//tooltip
+
+// handle mouse over
+const displayCountyDetails = (e, d) => {
+  let id = d.id;
+  let countyInfo = educationData.find((item) => {
+    return item.fips === id;
+  });
+
+  console.log(countyInfo);
+
+  const educationLevel = countyInfo["bachelorsOrHigher"];
+
+  tooltip
+    .transition()
+    .style("visibility", "visible")
+    .style("opacity", "0.9")
+    .attr("top", e.pageY + 10 + "px")
+    .attr("left", e.pageX + 10 + "px")
+    .attr("data-education", educationLevel)
+
+    .text(
+      countyInfo["area_name"] +
+        ", " +
+        countyInfo["state"] +
+        " - " +
+        countyInfo["bachelorsOrHigher"] +
+        "%"
+    );
+};
+const hideCountyDetails = () => {
+  tooltip.style("visibility", "hidden").style("opacity", "0");
+};
+
 const drawMap = () => {
   const canvas = d3.select("#canvas");
+  tooltip = d3.select("#tooltip");
 
   canvas
     .selectAll("path")
@@ -37,6 +72,7 @@ const drawMap = () => {
       percentage = county.bachelorsOrHigher;
 
       if (percentage <= 15) {
+        // console.log("legn", legendJson[0].color);
         return "tomato";
       } else if (percentage <= 25) {
         return "blue";
@@ -62,7 +98,9 @@ const drawMap = () => {
       });
       let perc = count["bachelorsOrHigher"];
       return perc;
-    });
+    })
+    .on("mouseover", displayCountyDetails)
+    .on("mouseout", hideCountyDetails);
 
   let legend = d3.select("#legend-section");
   legend
@@ -79,6 +117,12 @@ const drawMap = () => {
     .style("fill", (d) => d.color)
     .style("border", "3px solid red")
     .style("background-color", "yellow");
+
+  tooltip
+    .style("visibility", "hidden")
+    .attr("id", "tooltip")
+    .attr("opacity", "0")
+    .attr("position", "absolute");
 };
 
 //create a json object countyUrl and edicationUrl
@@ -86,11 +130,10 @@ d3.json(countyDataUrl).then((data) => {
   //   countyData = data;
 
   countyData = topojson.feature(data, data.objects.counties).features;
-  console.log("countd", countyData);
 
   d3.json(educationDataUrl).then((data) => {
     educationData = data;
-    console.log("edc", educationData);
+
     drawMap();
   });
 });

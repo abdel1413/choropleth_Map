@@ -6,6 +6,15 @@ const countyDataUrl =
 
 let educationData, countyData, percentage;
 
+const legendJson = [
+  { x_axis: "600", y_axis: "30", color: "tomato" },
+  { x_axis: "640", y_axis: "30", color: "blue" },
+  { x_axis: "680", y_axis: "30", color: "green" },
+  { x_axis: "720", y_axis: "30", color: "yellow" },
+  { x_axis: "760", y_axis: "30", color: "gray" },
+  { x_axis: "800", y_axis: "30", color: "black" },
+];
+
 const drawMap = () => {
   const canvas = d3.select("#canvas");
 
@@ -29,29 +38,47 @@ const drawMap = () => {
 
       if (percentage <= 15) {
         return "tomato";
-      } else if (percentage <= 30) {
+      } else if (percentage <= 25) {
         return "blue";
-      } else if (percentage <= 45) {
+      } else if (percentage <= 35) {
         return "green";
-      } else if (percentage <= 60) {
+      } else if (percentage <= 40) {
         return "yellow";
-      } else if (percentage <= 85) {
+      } else if (percentage <= 55) {
         return "gray";
       } else {
         return "black";
       }
     })
-    .attr("data-fips", (countyData) => countyData["fips"])
+
+    .attr("data-fips", (item) => {
+      return item["id"];
+    })
     .attr("data-education", (countyData) => {
       let id = countyData.id;
 
       let count = educationData.find((item) => {
-        console.log("fips", item.fips);
         return item.fips === id;
       });
       let perc = count["bachelorsOrHigher"];
       return perc;
     });
+
+  let legend = d3.select("#legend-section");
+  legend
+    .append("g")
+    .attr("id", "legend")
+    .selectAll("rect")
+    .data(legendJson)
+    .enter()
+    .append("rect")
+    .attr("width", "40")
+    .attr("height", "40")
+    .attr("x", (d) => d.x_axis)
+    .attr("y", (d) => d.y_axis)
+    .style("fill", (d) => d.color)
+    .style("border", "3px solid red")
+    .style("background-color", "yellow");
 };
 
 //create a json object countyUrl and edicationUrl

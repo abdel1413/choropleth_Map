@@ -114,7 +114,7 @@ const drawMap = () => {
     .attr("x", (d) => d.x_axis)
     .attr("y", (d) => d.y_axis)
     .style("fill", (d) => d.color)
-    .style("border", "3px solid red")
+
     .style("background-color", "yellow");
   let lineStrokes = d3.select("#legend");
   lineStrokes
@@ -123,11 +123,6 @@ const drawMap = () => {
     .data(colorJson)
     .enter()
     .append("line")
-    .attr("x1", "600")
-    .attr("y1", "30")
-    .attr("x2", "600")
-    .attr("y2", "60")
-
     .attr("x1", (d) => {
       console.log("d", d.value);
       let xCord = parseInt(d.x_axis);
@@ -140,7 +135,6 @@ const drawMap = () => {
 
       xCoord += 40;
       xCoord = "" + xCoord;
-
       return xCoord;
     })
     .attr("y2", (d) => {
@@ -151,11 +145,28 @@ const drawMap = () => {
       return yCoord;
     })
     .style("stroke", "black")
-    .attr("opacity", "1")
+    .attr("opacity", "1");
+  lineStrokes
+    .selectAll("text")
+    .data(colorJson)
+    .enter()
     .append("text")
-    .attr("x", "600")
-    .attr("y", "90")
-    .text((d) => d.value);
+    // .attr("x", "600")
+    // .attr("y", "70")
+    .attr("x", (d) => {
+      let tx = parseInt(d.x_axis);
+      tx += 7;
+      tx = "" + tx;
+      return tx;
+    })
+    .attr("y", (d) => {
+      let ty = parseInt(d.y_axis);
+      ty += 35;
+      ty = "" + ty;
+      return ty;
+    })
+    .text((d) => d.value)
+    .style("font-size", "0.9rem");
 
   tooltip
     .style("visibility", "hidden")

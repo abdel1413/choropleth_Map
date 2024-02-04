@@ -6,13 +6,13 @@ const countyDataUrl =
 
 let educationData, countyData, percentage, tooltip;
 
-const legendJson = [
-  { x_axis: "600", y_axis: "30", color: "tomato" },
-  { x_axis: "640", y_axis: "30", color: "blue" },
-  { x_axis: "680", y_axis: "30", color: "green" },
-  { x_axis: "720", y_axis: "30", color: "yellow" },
-  { x_axis: "760", y_axis: "30", color: "gray" },
-  { x_axis: "800", y_axis: "30", color: "black" },
+const colorJson = [
+  { x_axis: "600", y_axis: "30", color: "tomato", value: "12%" },
+  { x_axis: "640", y_axis: "30", color: "blue", value: "21%" },
+  { x_axis: "680", y_axis: "30", color: "green", value: "30%" },
+  { x_axis: "720", y_axis: "30", color: "yellow", value: "48%" },
+  { x_axis: "760", y_axis: "30", color: "gray", value: "57%" },
+  { x_axis: "800", y_axis: "30", color: "black", value: "66%" },
 ];
 
 //tooltip
@@ -24,18 +24,16 @@ const displayCountyDetails = (e, d) => {
     return item.fips === id;
   });
 
-  console.log(countyInfo);
-
   const educationLevel = countyInfo["bachelorsOrHigher"];
 
+  console.log("d", e.pageY);
   tooltip
     .transition()
     .style("visibility", "visible")
     .style("opacity", "0.9")
-    .attr("top", e.pageY + 10 + "px")
-    .attr("left", e.pageX + 10 + "px")
+    .style("top", e.pageX + "px")
+    .style("left", e.pageY + "px")
     .attr("data-education", educationLevel)
-
     .text(
       countyInfo["area_name"] +
         ", " +
@@ -73,17 +71,17 @@ const drawMap = () => {
 
       if (percentage <= 15) {
         // console.log("legn", legendJson[0].color);
-        return "tomato";
+        return colorJson[0].color;
       } else if (percentage <= 25) {
-        return "blue";
+        return colorJson[1].color;
       } else if (percentage <= 35) {
-        return "green";
+        return colorJson[2].color;
       } else if (percentage <= 40) {
-        return "yellow";
+        return colorJson[3].color;
       } else if (percentage <= 55) {
-        return "gray";
+        return colorJson[4].color;
       } else {
-        return "black";
+        return colorJson[5].color;
       }
     })
 
@@ -103,20 +101,61 @@ const drawMap = () => {
     .on("mouseout", hideCountyDetails);
 
   let legend = d3.select("#legend-section");
+
   legend
     .append("g")
     .attr("id", "legend")
     .selectAll("rect")
-    .data(legendJson)
+    .data(colorJson)
     .enter()
     .append("rect")
     .attr("width", "40")
-    .attr("height", "40")
+    .attr("height", "20")
     .attr("x", (d) => d.x_axis)
     .attr("y", (d) => d.y_axis)
     .style("fill", (d) => d.color)
     .style("border", "3px solid red")
     .style("background-color", "yellow");
+  let lineStrokes = d3.select("#legend");
+  lineStrokes
+    .append("g")
+    .selectAll("line")
+    .data(colorJson)
+    .enter()
+    .append("line")
+    .attr("x1", "600")
+    .attr("y1", "30")
+    .attr("x2", "600")
+    .attr("y2", "60")
+
+    .attr("x1", (d) => {
+      console.log("d", d.value);
+      let xCord = parseInt(d.x_axis);
+      xCord += 40;
+      return "" + xCord;
+    })
+    .attr("y1", (d) => d.y_axis)
+    .attr("x2", (d) => {
+      let xCoord = parseInt(d.x_axis);
+
+      xCoord += 40;
+      xCoord = "" + xCoord;
+
+      return xCoord;
+    })
+    .attr("y2", (d) => {
+      let yCoord = parseInt(d.y_axis);
+      yCoord += 30;
+      yCoord = "" + yCoord;
+
+      return yCoord;
+    })
+    .style("stroke", "black")
+    .attr("opacity", "1")
+    .append("text")
+    .attr("x", "600")
+    .attr("y", "90")
+    .text((d) => d.value);
 
   tooltip
     .style("visibility", "hidden")
